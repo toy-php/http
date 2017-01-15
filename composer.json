@@ -1,0 +1,17 @@
+{
+  "name": "toy-php/http",
+  "description": "Имплементация psr-7",
+  "minimum-stability": "stable",
+  "license": "mit",
+  "authors": [
+    {
+      "name": "Seytumerov Mustafa",
+      "email": "seymus007@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-0": {
+      "": ["src/"]
+    }
+  }
+}
