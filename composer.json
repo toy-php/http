@@ -1,7 +1,6 @@
 {
   "name": "toy-php/http",
   "description": "Имплементация psr-7",
-  "minimum-stability": "stable",
   "license": "mit",
   "authors": [
     {
