@@ -9,6 +9,9 @@
       "email": "seymus007@gmail.com"
     }
   ],
+  "require": {
+    "psr/http-message": "1.0.1"
+  },
   "autoload": {
     "psr-0": {
       "": ["src/"]
