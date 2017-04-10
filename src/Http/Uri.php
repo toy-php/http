@@ -1,6 +1,6 @@
 <?php
 
-namespace Toy\Components\Http;
+namespace Http;
 
 use Psr\Http\Message\UriInterface;
 
@@ -9,7 +9,7 @@ class Uri implements UriInterface
 
     protected $scheme;
     protected $authority;
-    protected $user_info;
+    protected $userInfo;
     protected $host;
     protected $port;
     protected $path;
@@ -19,7 +19,7 @@ class Uri implements UriInterface
         'http'  => 80,
         'https' => 443,
     ];
-    const CHAR_SUB_DELIMS = '!\$&\'\(\)\*\+,;=';
+    const CHAR_SUB_DELIMITER = '!\$&\'\(\)\*\+,;=';
     const CHAR_UNRESERVED = 'a-zA-Z0-9_\-\.~';
 
     public function __construct($uri = null)
@@ -33,10 +33,10 @@ class Uri implements UriInterface
     {
         $parts = parse_url($uri);
         if (false === $parts) {
-            throw new InvalidArgumentException('Неверный формат URL');
+            throw new Exception('Неверный формат URL');
         }
         $this->scheme    = isset($parts['scheme'])   ? $this->filterScheme($parts['scheme']) : '';
-        $this->user_info = isset($parts['user'])     ? $parts['user']     : '';
+        $this->userInfo = isset($parts['user'])     ? $parts['user']     : '';
         $this->host      = isset($parts['host'])     ? $parts['host']     : '';
         $this->port      = isset($parts['port'])     ? $parts['port']     : null;
         $this->path      = isset($parts['path'])     ? $this->filterPath($parts['path']) : '';
@@ -58,16 +58,13 @@ class Uri implements UriInterface
         );
 
         if (empty($path)) {
-            // No path
             return $path;
         }
 
         if ($path[0] !== '/') {
-            // Relative path
             return $path;
         }
 
-        // Ensure only one leading slash, to prevent XSS attempts.
         return '/' . ltrim($path, '/');
     }
 
@@ -115,7 +112,7 @@ class Uri implements UriInterface
     private function filterQueryOrFragment($value)
     {
         return preg_replace_callback(
-            '/(?:[^' . self::CHAR_UNRESERVED . self::CHAR_SUB_DELIMS . '%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/',
+            '/(?:[^' . self::CHAR_UNRESERVED . self::CHAR_SUB_DELIMITER . '%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/',
             [$this, 'urlEncodeChar'],
             $value
         );
@@ -131,13 +128,12 @@ class Uri implements UriInterface
         }
 
         if (! array_key_exists($scheme, $this->allowedSchemes)) {
-            throw new InvalidArgumentException(sprintf(
-                'Unsupported scheme "%s"; must be any empty string or in the set (%s)',
+            throw new Exception(sprintf(
+                'Неподдерживаемая схема "%s"; необходимый формат (%s)',
                 $scheme,
                 implode(', ', array_keys($this->allowedSchemes))
             ));
         }
-
         return $scheme;
     }
 
@@ -158,8 +154,8 @@ class Uri implements UriInterface
             return '';
         }
         $authority = $this->host;
-        if (!empty($this->user_info)) {
-            $authority = $this->user_info . '@' . $this->host;
+        if (!empty($this->userInfo)) {
+            $authority = $this->userInfo . '@' . $this->host;
         }
         if (!empty($this->port)) {
             $authority .= ':' . $this->port;
@@ -172,7 +168,7 @@ class Uri implements UriInterface
      */
     public function getUserInfo()
     {
-        return $this->user_info;
+        return $this->userInfo;
     }
 
     /**
@@ -223,9 +219,9 @@ class Uri implements UriInterface
         if ($this->scheme === $scheme) {
             return $this;
         }
-        $new_instance = clone $this;
-        $new_instance->scheme = $this->filterScheme($scheme);
-        return $new_instance;
+        $instance = clone $this;
+        $instance->scheme = $this->filterScheme($scheme);
+        return $instance;
     }
 
     /**
@@ -233,13 +229,13 @@ class Uri implements UriInterface
      */
     public function withUserInfo($user, $password = null)
     {
-        $user_info = $user . $password ? $user . ':' . $password : null;
-        if($this->user_info === $user_info){
+        $userInfo = $user . $password ? $user . ':' . $password : null;
+        if($this->userInfo === $userInfo){
             return $this;
         }
-        $new_instance = clone $this;
-        $new_instance->user_info = $user_info;
-        return $new_instance;
+        $instance = clone $this;
+        $instance->userInfo = $userInfo;
+        return $instance;
     }
 
     /**
@@ -250,9 +246,10 @@ class Uri implements UriInterface
         if($this->host === $host){
             return $this;
         }
-        $new_instance = clone $this;
-        $new_instance->host = $host;
-        return $new_instance;
+        $instance = clone $this;
+        $hostArray = explode(':', $host);
+        $instance->host = array_shift($hostArray);
+        return $instance;
     }
 
     /**
@@ -266,14 +263,14 @@ class Uri implements UriInterface
         if (null !== $port) {
             $port = (int) $port;
             if (1 > $port || 0xffff < $port) {
-                throw new \InvalidArgumentException(
-                    sprintf('Invalid port: %d. Must be between 1 and 65535', $port)
+                throw new Exception(
+                    sprintf('Неверный порт: %d. Диапазон допустимых портов 1 - 65535', $port)
                 );
             }
         }
-        $new_instance = clone $this;
-        $new_instance->port = $port;
-        return $new_instance;
+        $instance = clone $this;
+        $instance->port = $port;
+        return $instance;
     }
 
     /**
@@ -284,9 +281,9 @@ class Uri implements UriInterface
         if($this->path === $path){
             return $this;
         }
-        $new_instance = clone $this;
-        $new_instance->path = $this->filterPath($path);
-        return $new_instance;
+        $instance = clone $this;
+        $instance->path = $this->filterPath($path);
+        return $instance;
     }
 
     /**
@@ -297,9 +294,9 @@ class Uri implements UriInterface
         if($this->query === $query){
             return $this;
         }
-        $new_instance = clone $this;
-        $new_instance->query = $this->filterQuery($query);
-        return $new_instance;
+        $instance = clone $this;
+        $instance->query = $this->filterQuery($query);
+        return $instance;
     }
 
     /**
@@ -313,9 +310,9 @@ class Uri implements UriInterface
         if ($this->fragment === $fragment) {
             return $this;
         }
-        $new_instance = clone $this;
-        $new_instance->fragment = $this->filterFragment($fragment);
-        return $new_instance;
+        $instance = clone $this;
+        $instance->fragment = $this->filterFragment($fragment);
+        return $instance;
     }
 
     /**
@@ -336,7 +333,6 @@ class Uri implements UriInterface
             $part .= $this->getAuthority();
         }
         if ($this->path != null) {
-            // Add a leading slash if necessary.
             if ($part && substr($this->path, 0, 1) !== '/') {
                 $part .= '/';
             }

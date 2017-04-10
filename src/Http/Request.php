@@ -1,6 +1,6 @@
 <?php
 
-namespace Toy\Components\Http;
+namespace Http;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
@@ -8,7 +8,7 @@ use Psr\Http\Message\UriInterface;
 class Request extends Message implements RequestInterface
 {
 
-    protected $request_target;
+    protected $requestTarget;
 
     protected $method;
 
@@ -22,8 +22,8 @@ class Request extends Message implements RequestInterface
      */
     public function getRequestTarget()
     {
-        if ($this->request_target !== null) {
-            return $this->request_target;
+        if ($this->requestTarget !== null) {
+            return $this->requestTarget;
         }
 
         if ($this->uri === null) {
@@ -38,9 +38,9 @@ class Request extends Message implements RequestInterface
             $target .= '?'.$query;
         }
 
-        $this->request_target = $target;
+        $this->requestTarget = $target;
 
-        return $this->request_target;
+        return $this->requestTarget;
     }
 
     /**
@@ -48,12 +48,12 @@ class Request extends Message implements RequestInterface
      */
     public function withRequestTarget($requestTarget)
     {
-        if ($this->request_target = $requestTarget) {
+        if ($this->requestTarget = $requestTarget) {
             return $this;
         }
-        $new_instance = clone $this;
-        $new_instance->request_target = $requestTarget;
-        return $new_instance;
+        $instance = clone $this;
+        $instance->requestTarget = $requestTarget;
+        return $instance;
     }
 
     /**
@@ -72,9 +72,9 @@ class Request extends Message implements RequestInterface
         if ($this->method = $method) {
             return $this;
         }
-        $new_instance = clone $this;
-        $new_instance->method = $method;
-        return $new_instance;
+        $instance = clone $this;
+        $instance->method = $method;
+        return $instance;
     }
 
     /**
@@ -93,13 +93,13 @@ class Request extends Message implements RequestInterface
         if ($uri === $this->uri) {
             return $this;
         }
-        $new_instance = clone $this;
-        $new_instance->uri = $uri;
+        $instance = clone $this;
+        $instance->uri = $uri;
         if ($preserveHost === true) {
             if($host = $uri->getHost() and !$this->hasHeader('host')){
-                $new_instance->headers = ['host' => [$host]] + $new_instance->headers;
+                $instance->headers = ['host' => [$host]] + $instance->headers;
             }
         }
-        return $new_instance;
+        return $instance;
     }
 }

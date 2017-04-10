@@ -1,6 +1,6 @@
 <?php
 
-namespace Toy\Components\Http;
+namespace Http;
 
 use Psr\Http\Message\ResponseInterface;
 
@@ -66,26 +66,15 @@ class Response extends Message implements ResponseInterface
         508 => 'Loop Detected',
         511 => 'Network Authentication Required',
     ];
-    protected $status_code = 200;
-    protected $reason_phrase = '';
+    protected $statusCode = 200;
+    protected $reasonPhrase = '';
 
-    public function __construct($body = 'php://output', $status = 200, array $headers = [])
-    {
-        $this->status_code = (integer) $status;
-        $this->body = $this->createStream($body, 'wb+');
-        $this->headers = $headers;
-    }
-
-    private function createStream($file, $mode)
-    {
-        return new Stream(fopen($file, $mode));
-    }
     /**
      * @inheritdoc
      */
     public function getStatusCode()
     {
-        return $this->status_code;
+        return $this->statusCode;
     }
 
     /**
@@ -93,13 +82,16 @@ class Response extends Message implements ResponseInterface
      */
     public function withStatus($code, $reasonPhrase = '')
     {
-        $new_instance = clone $this;
-        $new_instance->status_code = (int)$code;
-        if (!$reasonPhrase && isset(self::$phrases[$new_instance->status_code])) {
-            $reasonPhrase = self::$phrases[$new_instance->status_code];
+        if($this->statusCode == $code){
+            return $this;
         }
-        $new_instance->reason_phrase = $reasonPhrase;
-        return $new_instance;
+        $instance = clone $this;
+        $instance->statusCode = (int)$code;
+        if (empty($reasonPhrase) && isset(self::$phrases[$instance->statusCode])) {
+            $reasonPhrase = self::$phrases[$instance->statusCode];
+        }
+        $instance->reasonPhrase = $reasonPhrase;
+        return $instance;
     }
 
     /**
@@ -107,6 +99,6 @@ class Response extends Message implements ResponseInterface
      */
     public function getReasonPhrase()
     {
-        return $this->reason_phrase;
+        return $this->reasonPhrase;
     }
 }

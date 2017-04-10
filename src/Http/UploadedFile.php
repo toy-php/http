@@ -1,6 +1,6 @@
 <?php
 
-namespace Toy\Components\Http;
+namespace Http;
 
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -11,8 +11,8 @@ class UploadedFile implements UploadedFileInterface
     protected $file;
     protected $size;
     protected $error;
-    protected $client_filename;
-    protected $client_media_type;
+    protected $clientFilename;
+    protected $clientMediaType;
     protected $moved = false;
 
     public function __construct(array $file)
@@ -22,8 +22,8 @@ class UploadedFile implements UploadedFileInterface
             $this->file = $file['tmp_name'];
             $this->size = $file['size'];
             $this->error = $file['error'];
-            $this->client_filename = $file['name'];
-            $this->client_media_type = $file['type'];
+            $this->clientFilename = $file['name'];
+            $this->clientMediaType = $file['type'];
         }else{
             $this->error = UPLOAD_ERR_NO_FILE;
         }
@@ -39,7 +39,7 @@ class UploadedFile implements UploadedFileInterface
 
     protected function isOk()
     {
-        return $this->error === UPLOAD_ERR_OK;
+        return $this->getError() === UPLOAD_ERR_OK;
     }
 
     /**
@@ -82,7 +82,7 @@ class UploadedFile implements UploadedFileInterface
      */
     public function getClientFilename()
     {
-        return $this->client_filename;
+        return $this->clientFilename;
     }
 
     /**
@@ -90,6 +90,6 @@ class UploadedFile implements UploadedFileInterface
      */
     public function getClientMediaType()
     {
-        return $this->client_media_type;
+        return $this->clientMediaType;
     }
 }

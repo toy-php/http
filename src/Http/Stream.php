@@ -1,6 +1,6 @@
 <?php
 
-namespace Toy\Components\Http;
+namespace Http;
 
 use Psr\Http\Message\StreamInterface;
 
@@ -26,7 +26,7 @@ class Stream implements StreamInterface
     public function __construct($stream)
     {
         if (!is_resource($stream)) {
-            throw new \InvalidArgumentException('Поток должен быть ресурсом');
+            throw new Exception('Поток должен быть ресурсом');
         }
         $this->stream = $stream;
     }
@@ -89,7 +89,7 @@ class Stream implements StreamInterface
     {
         $result = ftell($this->stream);
         if ($result === false) {
-            throw new \RuntimeException('Невозможно определить позицию потока');
+            throw new Exception('Невозможно определить позицию потока');
         }
         return $result;
     }
@@ -116,9 +116,9 @@ class Stream implements StreamInterface
     public function seek($offset, $whence = SEEK_SET)
     {
         if (!$this->isSeekable()) {
-            throw new \RuntimeException('Невозможно производить поиск в потоке');
+            throw new Exception('Невозможно производить поиск в потоке');
         } elseif (fseek($this->stream, $offset, $whence) === -1) {
-            throw new \RuntimeException('Не найдена позиция в потоке '
+            throw new Exception('Не найдена позиция в потоке '
                 . $offset . ' со значением ' . var_export($whence, true));
         }
     }
@@ -145,11 +145,11 @@ class Stream implements StreamInterface
     public function write($string)
     {
         if (!$this->isWritable()) {
-            throw new \RuntimeException('Поток не может быть записан');
+            throw new Exception('Поток не может быть записан');
         }
         $result = fwrite($this->stream, $string);
         if ($result === false) {
-            throw new \RuntimeException('Записи в поток не прозошло');
+            throw new Exception('Записи в поток не прозошло');
         }
         return $result;
     }
@@ -168,7 +168,7 @@ class Stream implements StreamInterface
     public function read($length)
     {
         if (!$this->isReadable()) {
-            throw new \RuntimeException('Поток не может быть прочитан');
+            throw new Exception('Поток не может быть прочитан');
         }
         return fread($this->stream, $length);
     }
@@ -181,7 +181,7 @@ class Stream implements StreamInterface
         $this->rewind();
         $contents = stream_get_contents($this->stream);
         if ($contents === false) {
-            throw new \RuntimeException('Контент потока не прочитан');
+            throw new Exception('Контент потока не прочитан');
         }
         return $contents;
     }

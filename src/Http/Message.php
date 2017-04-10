@@ -1,6 +1,6 @@
 <?php
 
-namespace Toy\Components\Http;
+namespace Http;
 
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
@@ -8,8 +8,8 @@ use Psr\Http\Message\StreamInterface;
 class Message implements MessageInterface
 {
 
-    protected $protocol_version;
-    protected static $available_protocol_version = [
+    protected $protocolVersion;
+    protected static $availableProtocolVersion = [
         '1.0' => true,
         '1.1' => true,
         '2.0' => true,
@@ -22,7 +22,7 @@ class Message implements MessageInterface
      */
     public function getProtocolVersion()
     {
-        return $this->protocol_version;
+        return $this->protocolVersion;
     }
 
     /**
@@ -30,15 +30,15 @@ class Message implements MessageInterface
      */
     public function withProtocolVersion($version)
     {
-        if(!isset(self::$available_protocol_version[$version])){
-            throw new InvalidArgumentException('Неверное значение версии протокола');
+        if(!isset(self::$availableProtocolVersion[$version])){
+            throw new Exception('Неверное значение версии протокола');
         }
-        if($this->protocol_version === $version){
+        if($this->protocolVersion === $version){
             return $this;
         }
-        $new_instance = clone $this;
-        $new_instance->protocol_version = $version;
-        return $new_instance;
+        $instance = clone $this;
+        $instance->protocolVersion = $version;
+        return $instance;
     }
 
     /**
@@ -79,17 +79,17 @@ class Message implements MessageInterface
      */
     public function withHeader($name, $value)
     {
-        $new_instance = clone $this;
+        $instance = clone $this;
         $name = strtolower($name);
 
         if (!is_array($value)) {
-            $new_instance->headers[$name] = [trim($value)];
+            $instance->headers[$name] = [trim($value)];
         } else {
             foreach ($value as $k => $v) {
-                $new_instance->headers[$name][$k] = trim($v);
+                $instance->headers[$name][$k] = trim($v);
             }
         }
-        return $new_instance;
+        return $instance;
     }
 
     /**
@@ -100,9 +100,9 @@ class Message implements MessageInterface
         if (!$this->hasHeader($name)) {
             return $this->withHeader($name, $value);
         }
-        $new_instance = clone $this;
-        $new_instance->headers[strtolower($name)][] = $value;
-        return $new_instance;
+        $instance = clone $this;
+        $instance->headers[strtolower($name)][] = $value;
+        return $instance;
     }
 
     /**
@@ -113,10 +113,10 @@ class Message implements MessageInterface
         if (!$this->hasHeader($name)) {
             return $this;
         }
-        $new_instance = clone $this;
+        $instance = clone $this;
         $header = strtolower($name);
-        unset($new_instance->headers[$header]);
-        return $new_instance;
+        unset($instance->headers[$header]);
+        return $instance;
     }
 
     /**
@@ -135,8 +135,8 @@ class Message implements MessageInterface
         if($this->body === $body){
            return $this;
         }
-        $new_instance = clone $this;
-        $new_instance->body = $body;
-        return $new_instance;
+        $instance = clone $this;
+        $instance->body = $body;
+        return $instance;
     }
 }
